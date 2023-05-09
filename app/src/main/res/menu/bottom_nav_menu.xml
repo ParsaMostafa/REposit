@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+<item
+    android:id="@+id/breakingNewsFragment"
+    android:title="BreakingNews"
+    android:icon="@drawable/sdsddd3_vectorized"/>
+    <item
+        android:id="@+id/savedNewsFragment"
+        android:title="SavedNews"
+        android:icon="@drawable/book_vectorized"/>
+    <item
+        android:id="@+id/searchNewsFragment"
+        android:title="SearchNews"
+        android:icon="@drawable/adsfsdfgd_vectorized"/>
+</menu>
