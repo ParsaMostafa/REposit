@@ -1,20 +1,21 @@
 package com.example.myedition.adaptor
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.myedition.R
+import com.example.myedition.databinding.ItemPreViewBinding
 import com.example.myedition.models.Article
 
 class NewsAdaptor: RecyclerView.Adapter<NewsAdaptor.ArticleViewHolder>() {
 
-    inner class ArticleViewHolder(itemview: View) : RecyclerView.ViewHolder(itemview)
+    inner class ArticleViewHolder(val binding:ItemPreViewBinding) : RecyclerView.ViewHolder(binding.root)
+
+
+
     private val differcallback = object : DiffUtil.ItemCallback<Article>() {
         override fun areItemsTheSame(oldItem: Article, newItem: Article): Boolean {
             return oldItem.url==newItem.url
@@ -27,8 +28,8 @@ class NewsAdaptor: RecyclerView.Adapter<NewsAdaptor.ArticleViewHolder>() {
     }
     val differ = AsyncListDiffer(this,differcallback)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticleViewHolder {
-        return ArticleViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.item_pre_view,parent,false)
+       return ArticleViewHolder(
+           ItemPreViewBinding.inflate(LayoutInflater.from(parent.context),parent,false)
         )
     }
 
@@ -36,27 +37,27 @@ class NewsAdaptor: RecyclerView.Adapter<NewsAdaptor.ArticleViewHolder>() {
         return differ.currentList.size
     }
 
+    @SuppressLint("SuspiciousIndentation")
     override fun onBindViewHolder(holder: ArticleViewHolder, position: Int) {
         val article = differ.currentList[position]
-        holder.itemView.apply {
+        val binding = holder.binding // get the binding instance from the view holder
 
-            var artimageview = findViewById<ImageView>(R.id.ivArticleImage)
-            Glide.with(this).load(article.urlToImage).into(artimageview)
-            var tvsource = findViewById<TextView>(R.id.tvSource)
-            tvsource.text = article.source?.name
-            var tvtitle = findViewById<TextView>(R.id.tvTitle)
-            tvtitle.text = article.title
-            var tvdescription = findViewById<TextView>(R.id.tvDescription)
-            tvdescription.text =  article.description
-            var tvpublished = findViewById<TextView>(R.id.tvPublishedAt)
-            tvpublished.text=article.publishedAt
-            setOnClickListener {
+        // Use View Binding to access the views in the item layout
+        binding.ivArticleImage.let {
+            Glide.with(it).load(article.urlToImage).into(it)
+        }
+        binding.tvSource.text = article.source?.name
+        binding.tvTitle.text = article.title
+        binding.tvDescription.text =  article.description
+        binding.tvPublishedAt.text = article.publishedAt
+            binding.root.setOnClickListener {
                 onItemClicklistener?.let { it(article) }
             }
+
         }
-    }
     private var onItemClicklistener: ((Article)->Unit)?=null
     fun setonItemclicklistener(Listener: (Article)->Unit){
         onItemClicklistener = Listener
     }
+
 }
