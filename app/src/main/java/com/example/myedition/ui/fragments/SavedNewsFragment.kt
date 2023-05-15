@@ -29,7 +29,7 @@ class SavedNewsFragment : Fragment(R.layout.fragment_saved_news) {
         setupRecyclerView()
         newsAdaptor.setonItemclicklistener {
             val bundle = Bundle().apply {
-                putSerializable("article",it)
+                putParcelable("article",it)
             }
             findNavController().navigate(R.id.action_savedNewsFragment_to_articleFragment,
                 bundle)

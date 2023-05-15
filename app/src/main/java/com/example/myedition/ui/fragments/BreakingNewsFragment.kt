@@ -34,11 +34,12 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
         super.onViewCreated(view, savedInstanceState)
         binding= FragmentBreakingNewsBinding.bind(view)
         viewModel=(activity as NewsActivity).viewModel
+
         setupRecyclerView()
 
         newsAdaptor.setonItemclicklistener {
             val bundle = Bundle().apply {
-                putSerializable("article",it)
+                putParcelable("article",it)
             }
             findNavController().navigate(R.id.action_breakingNewsFragment_to_articleFragment,
             bundle)

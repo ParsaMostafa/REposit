@@ -14,6 +14,8 @@ import com.example.myedition.ui.viewmodel.NewsViewModel
 import com.example.myedition.ui.viewmodel.NewsViewModelProviderFactory
 
 class NewsActivity : AppCompatActivity() {
+
+
     lateinit var viewModel: NewsViewModel
 
     lateinit var binding : ActivityNewsBinding
@@ -24,7 +26,7 @@ class NewsActivity : AppCompatActivity() {
 
         val repository = NewsRepository(ArticleDatabase(this))
 
-        val viewModelProviderFactory =NewsViewModelProviderFactory(application,repository)
+        val viewModelProviderFactory =  NewsViewModelProviderFactory(application,repository)
 
         viewModel = ViewModelProvider(this , viewModelProviderFactory).get(NewsViewModel::class.java)
 
