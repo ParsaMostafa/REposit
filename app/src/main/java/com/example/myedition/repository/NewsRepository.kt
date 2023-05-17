@@ -8,7 +8,7 @@ class NewsRepository(val db :ArticleDatabase) {
 
 
 
-
+       // Api Calls 
        suspend fun getBreakingNews (countryCode:String , pageNumber:Int)=
            RetrofitInctance.api.getBreakingNews(countryCode,pageNumber)
        suspend fun getNews (q:String,pageNumber:Int) =

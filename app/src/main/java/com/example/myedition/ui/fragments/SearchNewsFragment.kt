@@ -2,7 +2,6 @@ package com.example.myedition.ui.fragments
 
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.Fragment
 import android.view.View
@@ -14,7 +13,6 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.util.query
 import com.example.myedition.NewsActivity
 import com.example.myedition.R
 import com.example.myedition.adaptor.NewsAdaptor
@@ -74,7 +72,7 @@ class SearchNewsFragment : Fragment() {
                         }
         viewModel.searchingNews.observe(viewLifecycleOwner, Observer { response ->
             when(response){
-                is Resource.Succsess ->{ hideprogressbar()
+                is Resource.Success ->{ hideprogressbar()
                     response.Data?.let {newsResponse ->
                         newsAdaptor.differ.submitList(newsResponse.articles.toList())
                         val totalpages = newsResponse.totalResults / Constance.Query_PAGE_SIZE + 2

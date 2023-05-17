@@ -1,6 +1,5 @@
 package com.example.myedition.ui.viewmodel
 
-import NewsViewModel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

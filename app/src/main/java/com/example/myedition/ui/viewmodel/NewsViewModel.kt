@@ -1,3 +1,5 @@
+package com.example.myedition.ui.viewmodel
+
 import android.app.Application
 import android.content.Context
 import android.net.ConnectivityManager
@@ -13,7 +15,6 @@ import com.example.myedition.repository.NewsRepository
 import com.example.myedition.utilities.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.io.IOException
@@ -29,12 +30,42 @@ class NewsViewModel(
     private val _searchingNews = MutableStateFlow<Resource<NewsResponse>>(Resource.Loading())
     val searchingNews: StateFlow<Resource<NewsResponse>> = _searchingNews
 
-    private var breakingNewsPage = 1
+    var breakingNewsPage = 1
     private var breakingNewsResponse: NewsResponse? = null
 
     private var searchingNewsPage = 1
     private var searchingNewsResponse: NewsResponse? = null
 
+
+
+    // Checking Connection
+    private fun hasInternetConnection(): Boolean {
+        val connectivityManager =
+            getApplication<NewsApllication>().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val activeNetwork = connectivityManager.activeNetwork ?: return false
+            val capabilities =
+                connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
+            return when {
+                capabilities.hasTransport(TRANSPORT_WIFI) -> true
+                capabilities.hasTransport(TRANSPORT_CELLULAR) -> true
+                capabilities.hasTransport(TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        } else {
+            connectivityManager.activeNetworkInfo?.run {
+                return when (type) {
+                    TYPE_WIFI -> true
+                    TYPE_MOBILE -> true
+                    TYPE_ETHERNET -> true
+                    else -> false
+                }
+            }
+        }
+        return false
+    }
+
+    //Breaking News Api Calls
     init {
         getBreakingNews(countryCode = "us")
     }
@@ -48,13 +79,13 @@ class NewsViewModel(
         try {
             if (hasInternetConnection()) {
                 val response = newsRepository.getBreakingNews(countryCode, breakingNewsPage)
-                _breakingNews.value = handleBreakingNewsResponse(response)
+                _breakingNews.emit( handleBreakingNewsResponse(response))
             } else {
-                _breakingNews.value = Resource.Error("internet check")
+                _breakingNews.emit(Resource.Error("مشکل برقراری اتصال با شبکه "))
             }
         } catch (t: Throwable) {
             when (t) {
-                is IOException -> _breakingNews.value = Resource.Error("your offline ")
+                is IOException -> _breakingNews.value = Resource.Error("شما آفلاین هستید")
                 else -> _breakingNews.value = Resource.Error("Conversion error")
             }
         }
@@ -71,21 +102,24 @@ class NewsViewModel(
                     val newArticles = resultResponse.articles
                     oldArticles?.addAll(newArticles)
                 }
-                return Resource.Succsess(breakingNewsResponse ?: resultResponse)
+                return Resource.Success(breakingNewsResponse ?: resultResponse)
             }
         }
         return Resource.Error(response.message())
     }
 
-    fun searchNews(q: String, pageNumber:Int) = viewModelScope.launch {
+
+
+    // Search News Api Calls
+    fun searchNews(q: String, pageNumber: Int) = viewModelScope.launch {
         safeSearchNewsCall(q, pageNumber)
     }
 
-    private suspend fun safeSearchNewsCall(q: String,pageNumber: Int) {
+    private suspend fun safeSearchNewsCall(q: String, pageNumber: Int) {
         _searchingNews.value = Resource.Loading()
         try {
             if (hasInternetConnection()) {
-                val response = newsRepository.getNews(q,pageNumber)
+                val response = newsRepository.getNews(q, pageNumber)
                 _searchingNews.value = handleSearchingNewsResponse(response)
             } else {
                 _searchingNews.value = Resource.Error("internet check")
@@ -109,11 +143,14 @@ class NewsViewModel(
                     val newArticles = resultResponse.articles
                     oldArticles?.addAll(newArticles)
                 }
-                return Resource.Succsess(searchingNewsResponse ?: resultResponse)
+                return Resource.Success(searchingNewsResponse ?: resultResponse)
             }
         }
         return Resource.Error(response.message())
     }
+
+
+
 
     fun deleteArticle(article: Article) = viewModelScope.launch {
         newsRepository.deleteArticle(article)
@@ -123,30 +160,7 @@ class NewsViewModel(
         newsRepository.upsert(article)
     }
 
-    private fun hasInternetConnection(): Boolean {
-        val connectivityManager =
-            getApplication<NewsApllication>().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val activeNetwork = connectivityManager.activeNetwork ?: return false
-            val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-            return when {
-                capabilities.hasTransport(TRANSPORT_WIFI) -> true
-                capabilities.hasTransport(TRANSPORT_CELLULAR) -> true
-                capabilities.hasTransport(TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
-        } else {
-            connectivityManager.activeNetworkInfo?.run {
-                return when (type) {
-                    TYPE_WIFI -> true
-                    TYPE_MOBILE -> true
-                    TYPE_ETHERNET -> true
-                    else -> false
-                }
-            }
-        }
-        return false
-    }
+
 
     init {
         viewModelScope.launch {
