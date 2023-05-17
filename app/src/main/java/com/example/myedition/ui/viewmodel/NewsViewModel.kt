@@ -24,10 +24,10 @@ class NewsViewModel(
     private val newsRepository: NewsRepository
 ) : AndroidViewModel(app) {
 
-    private val _breakingNews = MutableStateFlow<Resource<NewsResponse>>(Resource.Loading())
+    private val _breakingNews = MutableStateFlow<Resource<NewsResponse>>(Resource.Loading)
     val breakingNews: StateFlow<Resource<NewsResponse>> = _breakingNews
 
-    private val _searchingNews = MutableStateFlow<Resource<NewsResponse>>(Resource.Loading())
+    private val _searchingNews = MutableStateFlow<Resource<NewsResponse>>(Resource.Loading)
     val searchingNews: StateFlow<Resource<NewsResponse>> = _searchingNews
 
     var breakingNewsPage = 1
@@ -75,7 +75,7 @@ class NewsViewModel(
     }
 
     private suspend fun safeBreakingNewsCall(countryCode: String) {
-        _breakingNews.value = Resource.Loading()
+        _breakingNews.emit(Resource.Loading)
         try {
             if (hasInternetConnection()) {
                 val response = newsRepository.getBreakingNews(countryCode, breakingNewsPage)
@@ -116,7 +116,7 @@ class NewsViewModel(
     }
 
     private suspend fun safeSearchNewsCall(q: String, pageNumber: Int) {
-        _searchingNews.value = Resource.Loading()
+        _searchingNews.value = Resource.Loading
         try {
             if (hasInternetConnection()) {
                 val response = newsRepository.getNews(q, pageNumber)

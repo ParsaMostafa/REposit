@@ -20,8 +20,7 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
 
     private lateinit var viewModel: NewsViewModel
     private lateinit var binding: FragmentBreakingNewsBinding
-
-   lateinit var newsAdapter: NewsAdaptor
+    lateinit var newsAdapter: NewsAdaptor
 
     private var isLoading = false
     private var isLastPage = false
@@ -53,7 +52,7 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
                 when (response) {
                     is Resource.Success -> {
                         hideProgressBar()
-                        response.data?.let { newsResponse ->
+                        response.data.let { newsResponse ->
                             newsAdapter.differ.submitList(newsResponse.articles.toList())
                             val totalPages = newsResponse.totalResults / Query_PAGE_SIZE + 2
                             isLastPage = viewModel.breakingNewsPage == totalPages
@@ -65,7 +64,7 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
                     is Resource.Error -> {
                         hideProgressBar()
                         response.message?.let { message ->
-                            Toast.makeText(activity, "Error: $message", Toast.LENGTH_LONG).show()
+                            Toast.makeText(activity, "خطا یافت شد : $message", Toast.LENGTH_LONG).show()
                         }
                     }
                     is Resource.Loading -> {
