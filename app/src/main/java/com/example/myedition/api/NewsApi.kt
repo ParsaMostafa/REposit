@@ -14,10 +14,8 @@ interface NewsApi {
         @Query("country")
         countrycode:String ="us" ,
         @Query("pagenumber")
-        pageNumber:Int = 1
-
-    ,
-     @Query("apikey")
+        pageNumber:Int = 1,
+        @Query("apikey")
       apikey:String = API_KEY
    ):Response<NewsResponse>
 

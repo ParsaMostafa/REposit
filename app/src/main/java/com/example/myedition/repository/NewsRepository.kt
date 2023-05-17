@@ -9,12 +9,10 @@ class NewsRepository(val db :ArticleDatabase) {
 
 
 
-       suspend fun getBreakingNews(county:String , category:String) =
-
-           RetrofitInctance.api.getBreakingNews(county,category)
-
-       suspend fun getnews (q:String,from:String,sortby:String) =
-           RetrofitInctance.api.searchnews(q,from,sortby)
+       suspend fun getBreakingNews (countryCode:String , pageNumber:Int)=
+           RetrofitInctance.api.getBreakingNews(countryCode,pageNumber)
+       suspend fun getNews (q:String,pageNumber:Int) =
+           RetrofitInctance.api.searchForNews(q,pageNumber)
 
        fun getAllArticles()= db.getArticleDao().getAllArticles()
 
@@ -23,7 +21,7 @@ class NewsRepository(val db :ArticleDatabase) {
        suspend fun deleteArticle(article: Article) = db.getArticleDao().deleteArticle(article)
 
 }
-
+    //I DONT WANT TO USE THESE CODES ANY MORE
   /*  suspend fun getBreakingNews( countrycode:String , pagenumber:Int)=
 
        RetrofitInctance.api.getBreakingNews(countrycode,pagenumber)
