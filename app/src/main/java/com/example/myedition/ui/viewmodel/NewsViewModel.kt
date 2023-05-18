@@ -33,7 +33,7 @@ class NewsViewModel(
     var breakingNewsPage = 1
     private var breakingNewsResponse: NewsResponse? = null
 
-    private var searchingNewsPage = 1
+    var searchingNewsPage = 1
     private var searchingNewsResponse: NewsResponse? = null
 
 
@@ -111,22 +111,22 @@ class NewsViewModel(
 
 
     // Search News Api Calls
-    fun searchNews(q: String, pageNumber: Int) = viewModelScope.launch {
-        safeSearchNewsCall(q, pageNumber)
+    fun searchNews(query: String, pageNumber: Int) = viewModelScope.launch {
+        safeSearchNewsCall(query, pageNumber)
     }
 
-    private suspend fun safeSearchNewsCall(q: String, pageNumber: Int) {
+    private suspend fun safeSearchNewsCall(query: String, pageNumber: Int) {
         _searchingNews.value = Resource.Loading
         try {
             if (hasInternetConnection()) {
-                val response = newsRepository.getNews(q, pageNumber)
+                val response = newsRepository.searchForNews(query, pageNumber)
                 _searchingNews.value = handleSearchingNewsResponse(response)
             } else {
-                _searchingNews.value = Resource.Error("internet check")
+                _searchingNews.value = Resource.Error("لطفا اتصال را بررسی کنید ")
             }
         } catch (t: Throwable) {
             when (t) {
-                is IOException -> _searchingNews.value = Resource.Error("your offline ")
+                is IOException -> _searchingNews.value = Resource.Error("شما آفلاین هستین  ")
                 else -> _searchingNews.value = Resource.Error("Conversion error")
             }
         }
@@ -151,7 +151,7 @@ class NewsViewModel(
 
 
 
-
+   //DATA BASE FUNCTIONS
     fun deleteArticle(article: Article) = viewModelScope.launch {
         newsRepository.deleteArticle(article)
     }
