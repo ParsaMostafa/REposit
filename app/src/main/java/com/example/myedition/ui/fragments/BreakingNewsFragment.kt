@@ -30,7 +30,7 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentBreakingNewsBinding.bind(view)
-        viewModel = ViewModelProvider(requireActivity()).get(NewsViewModel::class.java)
+        viewModel = ViewModelProvider(requireActivity())[NewsViewModel::class.java]
 
         setupRecyclerView()
         observeBreakingNews()

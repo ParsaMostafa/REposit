@@ -1,26 +1,38 @@
 package com.example.myedition.repository
 
 import com.example.myedition.api.RetrofitInctance
-import com.example.myedition.db.ArticleDatabase
+import com.example.myedition.db.ArticleDao
 import com.example.myedition.models.Article
+import com.example.myedition.models.NewsResponse
+import kotlinx.coroutines.flow.Flow
+import retrofit2.Response
 
-class NewsRepository(val db :ArticleDatabase) {
+class NewsRepository(private val articleDao: ArticleDao) {
 
+    // API Calls
+    suspend fun getBreakingNews(countryCode: String, pageNumber: Int): Response<NewsResponse> {
+        return RetrofitInctance.api.getBreakingNews(countryCode, pageNumber)
+    }
 
+    suspend fun searchForNews(query: String, pageNumber: Int): Response<NewsResponse> {
+        return RetrofitInctance.api.searchForNews(query, pageNumber)
+    }
 
-       // Api Calls 
-       suspend fun getBreakingNews (countryCode:String , pageNumber:Int)=
-           RetrofitInctance.api.getBreakingNews(countryCode,pageNumber)
-       suspend fun getNews (q:String,pageNumber:Int) =
-           RetrofitInctance.api.searchForNews(q,pageNumber)
+    // Database Operations
+    fun getAllArticles(): Flow<List<Article>> {
+        return articleDao.getAllArticles()
+    }
 
-       fun getAllArticles()= db.getArticleDao().getAllArticles()
+    suspend fun upsert(article: Article) {
+        articleDao.upsert(article)
+    }
 
-       suspend fun upsert(article:Article) = db.getArticleDao().upsert(article)
-
-       suspend fun deleteArticle(article: Article) = db.getArticleDao().deleteArticle(article)
-
+    suspend fun deleteArticle(article: Article) {
+        articleDao.deleteArticle(article)
+    }
 }
+
+
     //I DONT WANT TO USE THESE CODES ANY MORE
   /*  suspend fun getBreakingNews( countrycode:String , pagenumber:Int)=
 
