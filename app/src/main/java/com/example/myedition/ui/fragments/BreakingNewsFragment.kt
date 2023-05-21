@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.Navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,66 +13,58 @@ import com.example.myedition.R
 import com.example.myedition.adaptor.NewsAdaptor
 import com.example.myedition.databinding.FragmentBreakingNewsBinding
 import com.example.myedition.ui.viewmodel.NewsViewModel
-import com.example.myedition.utilities.Constance.Companion.Query_PAGE_SIZE
 import com.example.myedition.utilities.Resource
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
 
     private lateinit var viewModel: NewsViewModel
     private lateinit var binding: FragmentBreakingNewsBinding
-    lateinit var newsAdapter: NewsAdaptor
-
-    private var isLoading = false
-    private var isLastPage = false
-    private var isScrolling = false
+    private lateinit var newsAdapter: NewsAdaptor
+    private var isScrolling: Boolean = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         binding = FragmentBreakingNewsBinding.bind(view)
-        viewModel = ViewModelProvider(requireActivity())[NewsViewModel::class.java]
+        viewModel = ViewModelProvider(requireActivity()).get(NewsViewModel::class.java)
 
         setupRecyclerView()
         observeBreakingNews()
-        newsAdapter.setonItemclicklistener {
+        newsAdapter.setonItemclicklistener { article ->
             val bundle = Bundle().apply {
-                putParcelable("article",it)
+                putParcelable("article", article)
             }
-            findNavController().navigate(R.id.action_breakingNewsFragment_to_articleFragment,
-                bundle)
+            findNavController().navigate(R.id.action_breakingNewsFragment_to_articleFragment, bundle)
         }
+
+        viewModel.getBreakingNews()
     }
 
     private fun setupRecyclerView() {
         newsAdapter = NewsAdaptor()
-
         binding.rvBreakingNews.apply {
             adapter = newsAdapter
-            layoutManager = LinearLayoutManager(activity)
+            layoutManager = LinearLayoutManager(requireContext())
             addOnScrollListener(scrollListener)
         }
     }
 
     private fun observeBreakingNews() {
         viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.breakingNews.collect { response ->
-                when (response) {
+            viewModel.breakingNews.collect { resource ->
+                when (resource) {
                     is Resource.Success -> {
                         hideProgressBar()
-                        response.data.let { newsResponse ->
-                            newsAdapter.differ.submitList(newsResponse.articles.toList())
-                            val totalPages = newsResponse.totalResults / Query_PAGE_SIZE + 2
-                            isLastPage = viewModel.breakingNewsPage == totalPages
-                            if (isLastPage) {
-                                binding.rvBreakingNews.setPadding(0, 0, 0, 0)
-                            }
+                        resource.data.let { pagingData ->
+                            newsAdapter.submitData(viewLifecycleOwner.lifecycle, pagingData)
                         }
                     }
                     is Resource.Error -> {
                         hideProgressBar()
-                        response.message?.let { message ->
-                            Toast.makeText(activity, "خطا یافت شد : $message", Toast.LENGTH_LONG).show()
+                        resource.message?.let { message ->
+                            Toast.makeText(requireContext(), "Error: $message", Toast.LENGTH_LONG).show()
                         }
                     }
                     is Resource.Loading -> {
@@ -85,12 +76,10 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
     }
 
     private fun showProgressBar() {
-        isLoading = true
         binding.paginationProgressBar.visibility = View.VISIBLE
     }
 
     private fun hideProgressBar() {
-        isLoading = false
         binding.paginationProgressBar.visibility = View.INVISIBLE
     }
 
@@ -102,21 +91,15 @@ class BreakingNewsFragment : Fragment(R.layout.fragment_breaking_news) {
 
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-
             val layoutManager = recyclerView.layoutManager as LinearLayoutManager
             val visibleItemCount = layoutManager.childCount
             val totalItemCount = layoutManager.itemCount
             val firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition()
 
-            val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
-            val isAtLastItem = firstVisibleItemPosition + visibleItemCount >= totalItemCount
-            val isNotAtBeginning = firstVisibleItemPosition >= 0
-            val isTotalMoreThanVisible = totalItemCount >= Query_PAGE_SIZE
-
-            val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem && isNotAtBeginning && isTotalMoreThanVisible && isScrolling
-            if (shouldPaginate) {
-                viewModel.getBreakingNews("us")
-                isScrolling = false
+            // Perform your logic based on scroll position and isScrolling property
+            if (isScrolling && (visibleItemCount + firstVisibleItemPosition) >= totalItemCount) {
+                // Load more data or perform pagination
+                // Example: viewModel.loadMoreData()
             }
         }
     }

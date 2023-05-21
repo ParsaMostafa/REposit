@@ -1,14 +1,47 @@
 package com.example.myedition.repository
-
-import com.example.myedition.api.RetrofitInctance
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import com.example.myedition.api.NewsApi
 import com.example.myedition.db.ArticleDao
-import com.example.myedition.db.ArticleDatabase
 import com.example.myedition.models.Article
-import com.example.myedition.models.NewsResponse
+import com.example.myedition.paging.NewsPagingSource
+import com.example.myedition.paging.SearchNewsPagingSource
 import kotlinx.coroutines.flow.Flow
-import retrofit2.Response
 
-class NewsRepository(val db: ArticleDatabase) {
+class NewsRepository(private val newsApi: NewsApi, private val articleDao: ArticleDao) {
+
+    fun getBreakingNews(): Flow<PagingData<Article>> {
+        return Pager(
+            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false),
+            pagingSourceFactory = { NewsPagingSource(newsApi) }
+        ).flow
+    }
+
+    fun searchForNews(query: String): Flow<PagingData<Article>> {
+        return Pager(
+            config = PagingConfig(pageSize = PAGE_SIZE, enablePlaceholders = false),
+            pagingSourceFactory = { SearchNewsPagingSource(newsApi, query) }
+        ).flow
+    }
+
+    suspend fun upsertArticle(article: Article) {
+        articleDao.upsert(article)
+    }
+
+    suspend fun deleteArticle(article: Article) {
+        articleDao.deleteArticle(article)
+    }
+    fun getAllArticles(): Flow<List<Article>> {
+        return articleDao.getAllArticles()
+    }
+
+    companion object {
+        private const val PAGE_SIZE = 20
+    }
+}
+
+/*class NewsRepository(val db: ArticleDatabase) {
 
     // API Calls
     suspend fun getBreakingNews(countryCode: String, pageNumber: Int): Response<NewsResponse> {
@@ -31,32 +64,7 @@ class NewsRepository(val db: ArticleDatabase) {
     suspend fun deleteArticle(article: Article) {
         db.getArticleDao().deleteArticle(article)
     }
-}
-
-
-    //I DONT WANT TO USE THESE CODES ANY MORE
-  /*  suspend fun getBreakingNews( countrycode:String , pagenumber:Int)=
-
-       RetrofitInctance.api.getBreakingNews(countrycode,pagenumber)
-
-    suspend fun searchNews(searchQuery:String,pageNumber: Int) =
-
-        RetrofitInctance.api.searchForNews(searchQuery ,pageNumber)
-        */
-
-
-
- /*   suspend fun upsert(article: Article ) {
-        withContext(Dispatchers.IO){
-
-     db.getArticleDao().upsert(article)}}
-
-
-      fun getSavedNews() =
-          db.getArticleDao().getAllArticles()
-
-       suspend fun deleteArticle(article: Article) = db.getArticleDao().deleteArticle(article)*/
-
+}        */
 
 
 
