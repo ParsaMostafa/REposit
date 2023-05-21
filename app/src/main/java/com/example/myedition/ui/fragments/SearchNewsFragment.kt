@@ -72,7 +72,7 @@ class SearchNewsFragment : Fragment() {
                 when(response){
                     is Resource.Success ->{
                         hideprogressbar()
-                        response.data?.let {newsResponse ->
+                        response.data.let { newsResponse ->
                             newsAdaptor.differ.submitList(newsResponse.articles.toList())
                             val totalpages = newsResponse.totalResults / Constance.Query_PAGE_SIZE + 2
                             isLastPage = viewModel.searchingNewsPage  == totalpages

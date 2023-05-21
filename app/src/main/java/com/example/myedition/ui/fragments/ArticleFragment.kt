@@ -30,8 +30,8 @@ class ArticleFragment : Fragment(R.layout.fragment_article) {
             webViewClient = WebViewClient()
             loadUrl(article.url)
         }
-        binding.floatingActionButton.setOnClickListener { viewModel.savearticle(article)
-        Snackbar.make(view ,"article saved succsefuly",Snackbar.LENGTH_SHORT).show()
+        binding.floatingActionButton.setOnClickListener { viewModel.saveArticle(article)
+        Snackbar.make(view ,"مقاله با موفقیت ذخیره شد",Snackbar.LENGTH_SHORT).show()
 
 
         }

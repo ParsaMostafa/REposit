@@ -7,10 +7,10 @@ import com.example.myedition.repository.NewsRepository
 
 class NewsViewModelProviderFactory(
     val app:Application,
-    val newssepository: NewsRepository
+    val newsepository: NewsRepository
 ):ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return NewsViewModel(app,newssepository) as T
+        return NewsViewModel(app,newsepository) as T
     }
 }

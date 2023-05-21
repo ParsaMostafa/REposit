@@ -2,12 +2,13 @@ package com.example.myedition.repository
 
 import com.example.myedition.api.RetrofitInctance
 import com.example.myedition.db.ArticleDao
+import com.example.myedition.db.ArticleDatabase
 import com.example.myedition.models.Article
 import com.example.myedition.models.NewsResponse
 import kotlinx.coroutines.flow.Flow
 import retrofit2.Response
 
-class NewsRepository(private val articleDao: ArticleDao) {
+class NewsRepository(val db: ArticleDatabase) {
 
     // API Calls
     suspend fun getBreakingNews(countryCode: String, pageNumber: Int): Response<NewsResponse> {
@@ -20,15 +21,15 @@ class NewsRepository(private val articleDao: ArticleDao) {
 
     // Database Operations
     fun getAllArticles(): Flow<List<Article>> {
-        return articleDao.getAllArticles()
+        return db.getArticleDao().getAllArticles()
     }
 
-    suspend fun upsert(article: Article) {
-        articleDao.upsert(article)
+    suspend fun upsert(article: Article):Long {
+        return db.getArticleDao().upsert(article)
     }
 
     suspend fun deleteArticle(article: Article) {
-        articleDao.deleteArticle(article)
+        db.getArticleDao().deleteArticle(article)
     }
 }
 

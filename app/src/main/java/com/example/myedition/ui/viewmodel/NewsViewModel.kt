@@ -26,13 +26,12 @@ class NewsViewModel(
 
     private val _breakingNews = MutableStateFlow<Resource<NewsResponse>>(Resource.Loading)
     val breakingNews: StateFlow<Resource<NewsResponse>> = _breakingNews
-
-    private val _searchingNews = MutableStateFlow<Resource<NewsResponse>>(Resource.Loading)
-    val searchingNews: StateFlow<Resource<NewsResponse>> = _searchingNews
-
     var breakingNewsPage = 1
     private var breakingNewsResponse: NewsResponse? = null
 
+
+    private val _searchingNews = MutableStateFlow<Resource<NewsResponse>>(Resource.Loading)
+    val searchingNews: StateFlow<Resource<NewsResponse>> = _searchingNews
     var searchingNewsPage = 1
     private var searchingNewsResponse: NewsResponse? = null
 
@@ -116,13 +115,13 @@ class NewsViewModel(
     }
 
     private suspend fun safeSearchNewsCall(query: String, pageNumber: Int) {
-        _searchingNews.value = Resource.Loading
+        _searchingNews.emit(Resource.Loading)
         try {
             if (hasInternetConnection()) {
                 val response = newsRepository.searchForNews(query, pageNumber)
-                _searchingNews.value = handleSearchingNewsResponse(response)
+                _searchingNews.emit(handleSearchingNewsResponse(response))
             } else {
-                _searchingNews.value = Resource.Error("لطفا اتصال را بررسی کنید ")
+                _searchingNews.emit(Resource.Error("لطفا اتصال را بررسی کنید "))
             }
         } catch (t: Throwable) {
             when (t) {

@@ -52,4 +52,5 @@
             android:name="article"
             app:argType="com.example.myedition.models.Article" />
     </fragment>
+
 </navigation>
